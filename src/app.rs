@@ -10,6 +10,7 @@ struct WheelItem {
     name: String,
     executable: String,
     color: egui::Color32,
+    #[allow(dead_code)]
     powertoys_app: bool,
 }
 
