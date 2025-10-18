@@ -9,3 +9,4 @@ egui = "0.29"
 rand = "0.8"
 log = "0.4"
 env_logger = "0.11"
+clap = { version = "4.5", features = ["derive"] }
