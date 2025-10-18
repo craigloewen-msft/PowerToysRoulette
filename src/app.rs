@@ -75,6 +75,10 @@ pub struct WheelApp {
     // Result state
     winning_item: Option<WheelItem>,
     show_message: bool,
+
+    // Auto-run mode
+    auto_run: bool,
+    auto_run_started: bool,
 }
 
 impl Default for WheelApp {
@@ -124,12 +128,38 @@ impl Default for WheelApp {
             animation_time: 0.0,
             winning_item: None,
             show_message: false,
+            auto_run: false,
+            auto_run_started: false,
         }
     }
 }
 
 impl eframe::App for WheelApp {
+    fn clear_color(&self, _visuals: &egui::Visuals) -> [f32; 4] {
+        // Return fully transparent clear color for auto-run mode
+        if self.auto_run {
+            [0.0, 0.0, 0.0, 0.0] // Fully transparent
+        } else {
+            egui::Rgba::from_rgb(0.1, 0.1, 0.1).to_array() // Default dark background
+        }
+    }
+
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Set transparent background for auto-run mode
+        if self.auto_run {
+            ctx.style_mut(|style| {
+                style.visuals.window_fill = egui::Color32::TRANSPARENT;
+                style.visuals.panel_fill = egui::Color32::TRANSPARENT;
+            });
+        }
+
+        // Auto-start spin in auto-run mode
+        if self.auto_run && !self.auto_run_started && !self.spinning {
+            info!("Auto-run mode: starting spin automatically");
+            self.start_spin();
+            self.auto_run_started = true;
+        }
+
         // Update animation
         if self.spinning {
             self.animation_time += ctx.input(|i| i.unstable_dt);
@@ -154,6 +184,12 @@ impl eframe::App for WheelApp {
                 self.launch_program(&winning_item.executable);
 
                 self.winning_item = Some(winning_item.clone());
+
+                // Close app after short delay in auto-run mode
+                if self.auto_run {
+                    info!("Auto-run mode: closing application after launch");
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+                }
             } else {
                 // Ease out cubic for smooth deceleration
                 let t = self.animation_time / duration;
@@ -165,11 +201,26 @@ impl eframe::App for WheelApp {
             }
         }
 
-        egui::CentralPanel::default().show(ctx, |ui| {
+        // Configure transparent background in auto-run mode
+        let panel = if self.auto_run {
+            egui::CentralPanel::default().frame(
+                egui::Frame::none()
+                    .fill(egui::Color32::TRANSPARENT)
+            )
+        } else {
+            egui::CentralPanel::default()
+        };
+
+        panel.show(ctx, |ui| {
             ui.vertical_centered(|ui| {
-                ui.add_space(20.0);
-                ui.heading("🎰 Prize Wheel Roulette 🎰");
-                ui.add_space(20.0);
+                // Only show title and spacing in normal mode
+                if !self.auto_run {
+                    ui.add_space(20.0);
+                    ui.heading("🎰 Prize Wheel Roulette 🎰");
+                    ui.add_space(20.0);
+                } else {
+                    ui.add_space(100.0); // Center the wheel vertically
+                }
 
                 // Draw the wheel
                 let wheel_size = 400.0;
@@ -224,41 +275,44 @@ impl eframe::App for WheelApp {
                     egui::Stroke::new(3.0, egui::Color32::from_rgb(150, 0, 0)),
                 ));
 
-                ui.add_space(30.0);
+                // Only show buttons and messages in normal mode
+                if !self.auto_run {
+                    ui.add_space(30.0);
 
-                // Spin button
-                let button_text = if self.spinning {
-                    "Spinning..."
-                } else {
-                    "🎲 SPIN 🎲"
-                };
-                let button =
-                    egui::Button::new(egui::RichText::new(button_text).size(28.0).strong());
+                    // Spin button
+                    let button_text = if self.spinning {
+                        "Spinning..."
+                    } else {
+                        "🎲 SPIN 🎲"
+                    };
+                    let button =
+                        egui::Button::new(egui::RichText::new(button_text).size(28.0).strong());
 
-                if ui.add_sized([200.0, 60.0], button).clicked() && !self.spinning {
-                    info!("Spin button clicked, starting new spin");
-                    self.start_spin();
-                }
+                    if ui.add_sized([200.0, 60.0], button).clicked() && !self.spinning {
+                        info!("Spin button clicked, starting new spin");
+                        self.start_spin();
+                    }
 
-                ui.add_space(20.0);
+                    ui.add_space(20.0);
 
-                // Show winning message
-                if let Some(winning_item) = &self.winning_item {
-                    ui.add_space(10.0);
+                    // Show winning message
+                    if let Some(winning_item) = &self.winning_item {
+                        ui.add_space(10.0);
 
-                    ui.label(
-                        egui::RichText::new(format!("🎉 Congratulations! 🎉"))
-                            .size(32.0)
-                            .color(egui::Color32::from_rgb(50, 200, 50))
-                            .strong(),
-                    );
+                        ui.label(
+                            egui::RichText::new(format!("🎉 Congratulations! 🎉"))
+                                .size(32.0)
+                                .color(egui::Color32::from_rgb(50, 200, 50))
+                                .strong(),
+                        );
 
-                    ui.label(
-                        egui::RichText::new(format!("Launching: {}", winning_item.name))
-                            .size(28.0)
-                            .color(egui::Color32::from_rgb(255, 215, 0))
-                            .strong(),
-                    );
+                        ui.label(
+                            egui::RichText::new(format!("Launching: {}", winning_item.name))
+                                .size(28.0)
+                                .color(egui::Color32::from_rgb(255, 215, 0))
+                                .strong(),
+                        );
+                    }
                 }
             });
         });
@@ -420,6 +474,41 @@ pub fn launch() -> Result<(), eframe::Error> {
         Box::new(|_cc| {
             info!("Creating WheelApp instance");
             Ok(Box::new(WheelApp::default()))
+        }),
+    )
+}
+
+/// Launch the wheel application in auto-run mode with transparent background
+pub fn launch_auto_run() -> Result<(), eframe::Error> {
+    info!("Starting Prize Wheel Roulette application in auto-run mode");
+    debug!("Configuring window options for auto-run (transparent)");
+
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([800.0, 700.0])
+            .with_resizable(false)
+            .with_transparent(true)
+            .with_decorations(false),
+        ..Default::default()
+    };
+
+    debug!("Launching native window in auto-run mode");
+    eframe::run_native(
+        "Prize Wheel Roulette - Auto Run",
+        options,
+        Box::new(|cc| {
+            // Configure transparent visuals
+            let mut visuals = egui::Visuals::default();
+            visuals.window_fill = egui::Color32::TRANSPARENT;
+            visuals.panel_fill = egui::Color32::TRANSPARENT;
+            visuals.extreme_bg_color = egui::Color32::TRANSPARENT;
+            visuals.faint_bg_color = egui::Color32::TRANSPARENT;
+            cc.egui_ctx.set_visuals(visuals);
+
+            info!("Creating WheelApp instance in auto-run mode");
+            let mut app = WheelApp::default();
+            app.auto_run = true;
+            Ok(Box::new(app))
         }),
     )
 }

@@ -12,6 +12,10 @@ use log::info;
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
+
+    /// Run in auto-spin mode with transparent background
+    #[arg(long)]
+    auto_run: bool,
 }
 
 #[derive(Subcommand)]
@@ -36,8 +40,13 @@ fn main() -> Result<(), eframe::Error> {
         }
         None => {
             // Default: Launch the GUI application
-            info!("Launching GUI mode");
-            app::launch()
+            if cli.auto_run {
+                info!("Launching GUI mode with auto-run");
+                app::launch_auto_run()
+            } else {
+                info!("Launching GUI mode");
+                app::launch()
+            }
         }
     }
 }
