@@ -1,1 +1,7 @@
 /target
+
+# Windows SDK packages and generated files
+.winsdk
+
+# Development certificate
+devcert.pfx
