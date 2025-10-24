@@ -1,5 +1,6 @@
 mod app;
 mod mcp;
+mod wheel;
 
 use clap::{Parser, Subcommand};
 use log::info;

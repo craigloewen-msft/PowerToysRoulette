@@ -5,6 +5,8 @@ use rmcp::{
 };
 use tokio::io::{stdin, stdout};
 
+use crate::wheel::Wheel;
+
 /// Handle MCP (Model Context Protocol) related functionality
 pub fn run() {
     info!("MCP mode activated");
@@ -30,6 +32,7 @@ async fn run_mcp_server() -> Result<(), Box<dyn std::error::Error>> {
 
 struct McpServer {
     tool_router: ToolRouter<McpServer>,
+    wheel: Wheel,
 }
 
 #[tool_router]
@@ -37,33 +40,23 @@ impl McpServer {
     fn new() -> Self {
         Self {
             tool_router: Self::tool_router(),
+            wheel: Wheel::new(),
         }
     }
 
-    #[tool(description = "Say hello to the client")]
-    fn say_hello(&self) -> Result<CallToolResult, McpError> {
-        Ok(CallToolResult::success(vec![Content::text("hello")]))
-    }
-
-    #[tool(description = "Launch the PowerToys Roulette wheel in auto-spin mode with transparent background")]
+    #[tool(description = "Spin the PowerToys Roulette wheel and get a random executable to launch for the user")]
     fn launch_roulette(&self) -> Result<CallToolResult, McpError> {
         info!("MCP tool: launch_roulette called");
 
-        match std::process::Command::new("PowerToysRoulette.exe")
-            .arg("--auto-run")
-            .spawn()
-        {
-            Ok(_) => {
-                info!("PowerToys Roulette launched successfully in auto-run mode");
-                Ok(CallToolResult::success(vec![Content::text(
-                    "PowerToys Roulette launched in auto-spin mode"
-                )]))
-            }
-            Err(e) => {
-                let error_msg = format!("Failed to launch PowerToys Roulette: {}", e);
-                Err(McpError::new(ErrorCode(-32603), error_msg, None))
-            }
-        }
+        // Use the shared wheel logic to randomly select an item
+        let winner = self.wheel.spin();
+        
+        info!("Wheel selected: {} ({})", winner.name, winner.executable);
+
+        // Return the executable name as the result
+        Ok(CallToolResult::success(vec![Content::text(
+            format!("Wheel has finished and has landed on: {}\nPlease run this executable for the user: {}", winner.name, winner.executable)
+        )]))
     }
 }
 
