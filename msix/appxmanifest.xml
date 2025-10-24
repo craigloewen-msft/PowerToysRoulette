@@ -45,6 +45,17 @@
         Square44x44Logo="Assets\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="powertoysroulettefile">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.powertoysroulette</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>PowerToys Roulette File</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

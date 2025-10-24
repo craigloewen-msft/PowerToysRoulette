@@ -11,6 +11,14 @@ A demo application that launches different PowerToys utilities via a roulette wh
    cargo run
    ```
 
+## Package
+
+`cargo build --release`
+
+`cd msix`
+
+`Winsdk.Cli.exe package . --cert .\devcert.pfx --install-cert --cert-password password -v`
+
 ## Requirements
 
 - Rust toolchain

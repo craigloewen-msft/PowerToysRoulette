@@ -16,6 +16,10 @@ struct Cli {
     /// Run in auto-spin mode with transparent background
     #[arg(long)]
     auto_run: bool,
+
+    /// Path to a .powertoysroulette file to open
+    #[arg(value_name = "FILE")]
+    file: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -31,6 +35,14 @@ fn main() -> Result<(), eframe::Error> {
         .init();
 
     let cli = Cli::parse();
+
+    // Handle file opening
+    if let Some(file_path) = &cli.file {
+        info!("Opening file: {}", file_path);
+        // TODO: Load wheel configuration from the file
+        // For now, just launch the GUI and log that a file was provided
+        return app::launch();
+    }
 
     match &cli.command {
         Some(Commands::Mcp) => {
