@@ -461,14 +461,24 @@ pub fn launch() -> Result<(), eframe::Error> {
     info!("Starting Prize Wheel Roulette application");
     debug!("Configuring window options");
 
+    // Force software rendering for cloud dev box / GPU-less environments
+    std::env::set_var("WGPU_BACKEND", "gl");
+    std::env::set_var("WGPU_POWER_PREF", "low");
+    
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([800.0, 700.0])
             .with_resizable(true),
+        renderer: eframe::Renderer::Wgpu,
+        wgpu_options: eframe::egui_wgpu::WgpuConfiguration {
+            supported_backends: wgpu::Backends::all(),
+            power_preference: wgpu::PowerPreference::LowPower,
+            ..Default::default()
+        },
         ..Default::default()
     };
 
-    debug!("Launching native window");
+    debug!("Launching native window with wgpu renderer (software fallback enabled)");
     eframe::run_native(
         "Prize Wheel Roulette",
         options,
@@ -484,16 +494,26 @@ pub fn launch_auto_run() -> Result<(), eframe::Error> {
     info!("Starting Prize Wheel Roulette application in auto-run mode");
     debug!("Configuring window options for auto-run (transparent)");
 
+    // Force software rendering for cloud dev box / GPU-less environments
+    std::env::set_var("WGPU_BACKEND", "gl");
+    std::env::set_var("WGPU_POWER_PREF", "low");
+
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([800.0, 700.0])
             .with_resizable(false)
             .with_transparent(true)
             .with_decorations(false),
+        renderer: eframe::Renderer::Wgpu,
+        wgpu_options: eframe::egui_wgpu::WgpuConfiguration {
+            supported_backends: wgpu::Backends::all(),
+            power_preference: wgpu::PowerPreference::LowPower,
+            ..Default::default()
+        },
         ..Default::default()
     };
 
-    debug!("Launching native window in auto-run mode");
+    debug!("Launching native window in auto-run mode with wgpu renderer (software fallback enabled)");
     eframe::run_native(
         "Prize Wheel Roulette - Auto Run",
         options,
