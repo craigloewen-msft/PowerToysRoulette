@@ -48,17 +48,8 @@ impl McpServer {
     #[tool(description = "Launch the PowerToys Roulette wheel in auto-spin mode with transparent background")]
     fn launch_roulette(&self) -> Result<CallToolResult, McpError> {
         info!("MCP tool: launch_roulette called");
-        
-        // Launch the app as a separate process to avoid event loop threading issues
-        let exe_path = match std::env::current_exe() {
-            Ok(path) => path,
-            Err(e) => {
-                let error_msg = format!("Failed to get executable path: {}", e);
-                return Err(McpError::new(ErrorCode(-32603), error_msg, None));
-            }
-        };
-        
-        match std::process::Command::new(exe_path)
+
+        match std::process::Command::new("PowerToysRoulette.exe")
             .arg("--auto-run")
             .spawn()
         {

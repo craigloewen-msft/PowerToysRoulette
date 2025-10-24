@@ -141,7 +141,7 @@ impl eframe::App for WheelApp {
         if self.auto_run {
             [0.0, 0.0, 0.0, 0.0] // Fully transparent
         } else {
-            egui::Rgba::from_rgb(0.1, 0.1, 0.1).to_array() // Default dark background
+            egui::Rgba::from_rgb(255.0, 255.0, 255.0).to_array() // Default light background
         }
     }
 

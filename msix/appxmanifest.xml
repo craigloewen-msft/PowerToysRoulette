@@ -5,16 +5,17 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
-  IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop6 uap10">
+  IgnorableNamespaces="uap uap2 uap3 uap5 rescap desktop desktop6 uap10">
 
   <Identity
     Name="powertoysroulette"
     Publisher="CN=crloewen"
-    Version="1.0.0.0" />
+    Version="1.5.0.0" />
 
   <Properties>
     <DisplayName>powertoysroulette</DisplayName>
@@ -55,6 +56,22 @@
             <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
           </uap3:FileTypeAssociation>
         </uap3:Extension>
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension
+            Name="com.microsoft.windows.ai.mcpServer"
+            Id="PowerToysRouletteMCPServer"
+            DisplayName="PowerToys-Roulette-MCP-Server"
+            PublicFolder="Assets">
+            <uap3:Properties>
+              <Registration>manifest.json</Registration>
+            </uap3:Properties>
+          </uap3:AppExtension>
+        </uap3:Extension>
+        <uap5:Extension Category="windows.appExecutionAlias">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="PowerToysRoulette.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
       </Extensions>
     </Application>
   </Applications>

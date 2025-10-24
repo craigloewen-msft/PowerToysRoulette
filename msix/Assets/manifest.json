@@ -1,0 +1,19 @@
+{
+  "manifest_version": "0.1",
+  "name": "PowerToys-Roulette",
+  "version": "1.0.0",
+  "description": "Run apps by chance on your computer",
+  "author": {
+    "name": "Microsoft"
+  },
+  "server": {
+    "type": "binary",
+    "entry_point": "PowerToysRoulette.exe",
+    "mcp_config": {
+      "command": "PowerToysRoulette.exe",
+      "args": [
+        "mcp"
+      ]
+    }
+  }
+}
