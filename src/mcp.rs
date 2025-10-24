@@ -45,8 +45,44 @@ impl McpServer {
     }
 
     #[tool(description = "Spin the PowerToys Roulette wheel and get a random executable to launch for the user")]
-    fn launch_roulette(&self) -> Result<CallToolResult, McpError> {
+    async fn launch_roulette(&self, context: RequestContext<RoleServer>) -> Result<CallToolResult, McpError> {
         info!("MCP tool: launch_roulette called");
+
+        // Simulate wheel spinning with progress updates
+        let total_duration = std::time::Duration::from_secs(8);
+        let steps = 16;
+        let step_duration = total_duration / steps;
+
+        for i in 0..=steps {
+            let progress = (i as f64 / steps as f64) * 100.0;
+            
+            // Send progress notification if we have a progress token
+            if let Some(progress_token) = context.meta.get_progress_token() {
+                // Classic spinning wheel animation
+                let spinner = match i % 4 {
+                    0 => "|",
+                    1 => "/",
+                    2 => "─",
+                    _ => "\\",
+                };
+                
+                let progress_param = ProgressNotificationParam {
+                    progress_token,
+                    progress,
+                    total: Some(100.0),
+                    message: Some(format!("{} Spinning the PowerToys wheel...", spinner)),
+                };
+                
+                if let Err(e) = context.peer.notify_progress(progress_param).await {
+                    log::warn!("Failed to send progress notification: {}", e);
+                }
+            }
+            
+            // Wait before next update (but not after the last one)
+            if i < steps {
+                tokio::time::sleep(step_duration).await;
+            }
+        }
 
         // Use the shared wheel logic to randomly select an item
         let winner = self.wheel.spin();
