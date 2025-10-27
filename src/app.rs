@@ -324,16 +324,85 @@ impl WheelApp {
         );
     }
 
+    fn is_console_app(exe_path: &str) -> bool {
+        let exe_lower = exe_path.to_lowercase();
+        exe_lower.contains("powershell") 
+            || exe_lower.contains("pwsh") 
+            || exe_lower.contains("cmd.exe") 
+            || exe_lower.ends_with("cmd")
+    }
+
+    fn launch_in_new_window(exe: &str) -> std::io::Result<std::process::Child> {
+        info!("Detected console application, launching in new window");
+        #[cfg(target_os = "linux")]
+        let cmd_name = "cmd.exe";
+        #[cfg(not(target_os = "linux"))]
+        let cmd_name = "cmd";
+        
+        Command::new(cmd_name)
+            .arg("/C")
+            .arg("start")
+            .arg("") // Empty title
+            .arg(exe)
+            .spawn()
+    }
+
     fn launch_program(&self, executable: &str) {
         // Launch the program in a separate thread so it doesn't block the UI
         info!("Attempting to launch program: {}", executable);
         let exe = executable.to_string();
         std::thread::spawn(move || {
-            // For regular executables
-            debug!("Launching executable: {}", exe);
-            match Command::new(&exe).spawn() {
-                Ok(_) => info!("Successfully launched: {}", exe),
-                Err(e) => error!("Failed to launch {}: {}", exe, e),
+            let is_console = Self::is_console_app(&exe);
+            
+            // Check if running on Linux/WSL
+            #[cfg(target_os = "linux")]
+            {
+                debug!("Running on Linux, translating path with wslpath");
+                
+                let result = if is_console {
+                    // Console apps: use original Windows path with cmd.exe
+                    Self::launch_in_new_window(&exe)
+                } else {
+                    // Regular apps: translate path and launch
+                    match Command::new("wslpath").arg("-u").arg(&exe).output() {
+                        Ok(output) if output.status.success() => {
+                            let translated_path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                            debug!("Translated path: {} -> {}", exe, translated_path);
+                            Command::new(&translated_path).spawn()
+                        }
+                        Ok(output) => {
+                            error!("wslpath failed with status: {}", output.status);
+                            error!("stderr: {}", String::from_utf8_lossy(&output.stderr));
+                            return;
+                        }
+                        Err(e) => {
+                            error!("Failed to run wslpath: {}", e);
+                            return;
+                        }
+                    }
+                };
+                
+                match result {
+                    Ok(_) => info!("Successfully launched: {}", exe),
+                    Err(e) => error!("Failed to launch {}: {}", exe, e),
+                }
+            }
+
+            // For Windows or other platforms
+            #[cfg(not(target_os = "linux"))]
+            {
+                debug!("Launching executable: {}", exe);
+                
+                let result = if is_console {
+                    Self::launch_in_new_window(&exe)
+                } else {
+                    Command::new(&exe).spawn()
+                };
+                
+                match result {
+                    Ok(_) => info!("Successfully launched: {}", exe),
+                    Err(e) => error!("Failed to launch {}: {}", exe, e),
+                }
             }
         });
     }
