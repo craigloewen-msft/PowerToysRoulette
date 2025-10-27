@@ -9,18 +9,16 @@ pub struct WheelItem {
     pub name: String,
     pub executable: String,
     pub color: egui::Color32,
-    pub powertoys_app: bool,
 }
 
 impl WheelItem {
     /// Creates a new WheelItem with an auto-generated color based on its index.
     /// Colors are distributed evenly around the HSL color wheel for maximum visual distinction.
-    pub fn new(name: impl Into<String>, executable: impl Into<String>, index: usize, total: usize, powertoys_app: bool) -> Self {
+    pub fn new(name: impl Into<String>, executable: impl Into<String>, index: usize, total: usize) -> Self {
         Self {
             name: name.into(),
             executable: executable.into(),
             color: Self::generate_color(index, total),
-            powertoys_app,
         }
     }
 
@@ -83,31 +81,31 @@ impl Wheel {
     /// Get the default set of wheel items
     pub fn default_items() -> Vec<WheelItem> {
         let item_data = vec![
-            ("Notepad", "notepad.exe", false),
-            ("Calculator", "calc.exe", false),
-            ("Paint", "mspaint.exe", false),
-            ("Explorer", "explorer.exe", false),
-            ("Command", "cmd.exe", false),
-            ("Task Mgr", "taskmgr.exe", false),
-            ("Snipping", "SnippingTool.exe", false),
-            ("Control", "control.exe", false),
-            ("PowerShell", "powershell.exe", false),
-            ("Character Map", "charmap.exe", false),
-            ("Workspaces Editor", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\PowerToys.WorkspacesEditor.exe", true),
-            ("PowerToys Settings", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\PowerToys.exe", true),
-            ("Environment Variables", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.EnvironmentVariables.exe", true),
-            ("Registry Preview", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.RegistryPreview.exe", true),
-            ("Power Rename", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.PowerRename.exe", true),
-            ("File Locksmith", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.FileLocksmithUI.exe", true),
-            ("Styles Report Tool", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\Tools\\PowerToys.StylesReportTool.exe", true),
+            ("Notepad", "notepad.exe"),
+            ("Calculator", "calc.exe"),
+            ("Paint", "mspaint.exe"),
+            ("Explorer", "explorer.exe"),
+            ("Command", "cmd.exe"),
+            ("Task Mgr", "taskmgr.exe"),
+            ("Snipping", "SnippingTool.exe"),
+            ("Control", "control.exe"),
+            ("PowerShell", "powershell.exe"),
+            ("Character Map", "charmap.exe"),
+            ("Workspaces Editor", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\PowerToys.WorkspacesEditor.exe"),
+            ("PowerToys Settings", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\PowerToys.exe"),
+            ("Environment Variables", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.EnvironmentVariables.exe"),
+            ("Registry Preview", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.RegistryPreview.exe"),
+            ("Power Rename", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.PowerRename.exe"),
+            ("File Locksmith", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\WinUI3Apps\\PowerToys.FileLocksmithUI.exe"),
+            ("Styles Report Tool", "C:\\Users\\crloewen\\AppData\\Local\\PowerToys\\Tools\\PowerToys.StylesReportTool.exe"),
         ];
 
         let total = item_data.len();
         item_data
             .into_iter()
             .enumerate()
-            .map(|(i, (name, exe, is_powertoys))| {
-                WheelItem::new(name, exe, i, total, is_powertoys)
+            .map(|(i, (name, exe))| {
+                WheelItem::new(name, exe, i, total)
             })
             .collect()
     }

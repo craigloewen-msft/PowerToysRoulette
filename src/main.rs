@@ -33,6 +33,7 @@ fn main() -> Result<(), eframe::Error> {
     // Initialize logger
     env_logger::Builder::from_default_env()
         .filter_level(log::LevelFilter::Debug)
+        .filter_module("wgpu_core", log::LevelFilter::Warn)
         .init();
 
     let cli = Cli::parse();
