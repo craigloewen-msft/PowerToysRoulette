@@ -17,7 +17,7 @@ A demo application that launches different PowerToys utilities via a roulette wh
 
 `cd msix`
 
-`Winsdk.Cli.exe package . --cert .\devcert.pfx --install-cert --cert-password password -v`
+`winapp package . --cert .\devcert.pfx --install-cert --cert-password password -v`
 
 ## Requirements
 
