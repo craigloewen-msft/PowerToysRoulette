@@ -30,13 +30,16 @@ enum Commands {
 }
 
 fn main() -> Result<(), eframe::Error> {
-    // Initialize logger
-    env_logger::Builder::from_default_env()
-        .filter_level(log::LevelFilter::Debug)
-        .filter_module("wgpu_core", log::LevelFilter::Warn)
-        .init();
-
     let cli = Cli::parse();
+
+    // Initialize logger only if NOT in MCP mode
+    // MCP mode requires stdout to be exclusively for JSON-RPC messages
+    if !matches!(&cli.command, Some(Commands::Mcp)) {
+        env_logger::Builder::from_default_env()
+            .filter_level(log::LevelFilter::Debug)
+            .filter_module("wgpu_core", log::LevelFilter::Warn)
+            .init();
+    }
 
     // Handle file opening
     if let Some(file_path) = &cli.file {

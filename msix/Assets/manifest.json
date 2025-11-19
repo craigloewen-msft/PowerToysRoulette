@@ -15,5 +15,43 @@
         "mcp"
       ]
     }
+  },
+  "tools": [
+    {
+      "name": "launch_roulette",
+      "description": "Spin the PowerToys Roulette wheel and get a random executable to launch for the user"
+    }
+  ],
+  "tools_generated": false,
+  "license": "MIT",
+  "_meta": {
+    "com.microsoft.windows": {
+      "static_responses": {
+        "initialize": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {
+              "listChanged": true
+            }
+          },
+          "serverInfo": {
+            "name": "PowerToys-Roulette",
+            "version": "1.0.0"
+          }
+        },
+        "tools/list": {
+          "tools": [
+            {
+              "name": "launch_roulette",
+              "description": "Spin the PowerToys Roulette wheel and get a random executable to launch for the user",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          ]
+        }
+      }
+    }
   }
 }

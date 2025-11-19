@@ -1,4 +1,3 @@
-use log::info;
 use rmcp::{
     handler::server::router::tool::ToolRouter, model::*, service::RequestContext, tool,
     tool_handler, tool_router, ErrorData as McpError, RoleServer, ServerHandler, ServiceExt,
@@ -9,8 +8,6 @@ use crate::wheel::Wheel;
 
 /// Handle MCP (Model Context Protocol) related functionality
 pub fn run() {
-    info!("MCP mode activated");
-
     // Create a tokio runtime for async operations
     let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
 
@@ -21,7 +18,6 @@ pub fn run() {
 }
 
 async fn run_mcp_server() -> Result<(), Box<dyn std::error::Error>> {
-    info!("Starting MCP server...");
     let transport = (stdin(), stdout());
 
     let service = McpServer::new();
@@ -46,8 +42,6 @@ impl McpServer {
 
     #[tool(description = "Spin the PowerToys Roulette wheel and get a random executable to launch for the user")]
     async fn launch_roulette(&self, context: RequestContext<RoleServer>) -> Result<CallToolResult, McpError> {
-        info!("MCP tool: launch_roulette called");
-
         // Simulate wheel spinning with progress updates
         let total_duration = std::time::Duration::from_secs(8);
         let steps = 16;
@@ -86,8 +80,6 @@ impl McpServer {
 
         // Use the shared wheel logic to randomly select an item
         let winner = self.wheel.spin();
-        
-        info!("Wheel selected: {} ({})", winner.name, winner.executable);
 
         // Return the executable name as the result
         Ok(CallToolResult::success(vec![Content::text(
@@ -112,6 +104,12 @@ impl ServerHandler for McpServer {
         _request: InitializeRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> Result<InitializeResult, McpError> {
-        Ok(self.get_info())
+        let info = self.get_info();
+        Ok(InitializeResult {
+            protocol_version: info.protocol_version,
+            capabilities: info.capabilities,
+            server_info: info.server_info,
+            instructions: info.instructions,
+        })
     }
 }
