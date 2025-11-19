@@ -10,7 +10,8 @@
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
-  IgnorableNamespaces="uap uap2 uap3 uap5 rescap desktop desktop6 uap10">
+  xmlns:trustedlaunch="http://schemas.microsoft.com/appx/manifest/trustedlaunch/windows10"
+  IgnorableNamespaces="uap uap2 uap3 uap5 rescap desktop desktop6 uap10 trustedlaunch">
 
   <Identity
     Name="powertoysroulette"
@@ -21,6 +22,7 @@
     <DisplayName>powertoysroulette</DisplayName>
     <PublisherDisplayName>crloewen</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
+    <trustedlaunch:TrustedLaunch>true</trustedlaunch:TrustedLaunch>
   </Properties>
 
   <Dependencies>
